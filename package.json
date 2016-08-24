@@ -1,0 +1,25 @@
+{
+  "name": "lua-debug",
+  "main": "./lib/lua-debug",
+  "version": "0.0.0",
+  "description": "用于 Atom 的 Lua Debug工具",
+  "author": "jcrom <cqjcrom@gmail.com>",
+  "maintainers": [
+    {
+      "name": "Ju Chao",
+      "email": "ju.chao@rytong.com"
+    }
+  ],
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "lua-debug:toggle"
+  },
+  "repository": "https://github.com/atom/lua-debug",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+  }
+}
