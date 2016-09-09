@@ -3,6 +3,222 @@
 // See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
 // for a full listing of what's available.
 @import "ui-variables";
+@font-family: 'sans regular','方正黑体_GBK','思源黑体 CN',sans-serif ;
+@emp-background-color: #F5FFFF;
 
-.lua-debug {
+
+.lua-debug-view {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  cursor: default;
+  -webkit-user-select: none;
+  min-width: 100px;
+  width: 240px;
+  z-index: 2;
+  font-size: 13px;
+  line-height: 1.3;
+  font-family:@font-family;
+
+  display: -webkit-flex;
+  -webkit-flex: 1;
+  -webkit-flex-direction: column;
+  overflow: visible;
+  background:@emp-background-color;
+  // background: @base-background-color
+
+  .lua-debug-panel{
+    background-color:@emp-background-color;
+    height: 91%;
+    position: relative;
+    cursor: col-resize;
+    -webkit-user-select: none;
+    width: 100%;
+    overflow: auto;
+    display: -webkit-flex;
+    -webkit-flex: 1;
+    display: -webkit-flex;
+    min-height: 0;
+    min-width: 0;
+
+    .lua-debug-flow {
+      background-color:@emp-background-color;
+      position: absolute;
+      top: 0;
+      right : 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: auto;
+      cursor: text;
+      display: flex;
+      -webkit-flex-direction: column;
+
+      .lua-debug-server-row {
+        margin: 0px 0px 5px 0px;
+        right:0;
+        left:0;
+        min-width: 0;
+        min-height:220px;
+        position: relative;
+      }
+
+      .server-con {
+        color:@emp-background-color;
+
+        vertical-align: top;
+        padding:@component-padding/4 @component-padding @component-padding/2 @component-padding;
+
+        right:0;
+        left:0;
+        width: 100%;
+        .btn-default,
+        .btn-group > .btn-default {
+          background: @emp-background-color;
+          color:#000014;
+          border: 1px solid #ccc;
+
+          &:hover {
+            color: #000014;
+            background: #ddd;
+          }
+        }
+
+        .btn-else {
+          border: 1px solid #ccc;
+          margin-bottom:@component-padding/4;
+        }
+
+        .setting-editor-container {
+          margin-bottom: @component-padding;
+          background-color:#FAFFFF;
+          border: 1px solid #cccccc;
+          border-radius: 4px;
+
+          atom-text-editor[mini],
+          atom-text-editor[mini].is-focused::shadow {
+            // color: @text-color;
+            color: #333333;
+            background-color: #FAFFFF;
+            // padding: 6px 12px;
+
+            .cursor {
+              border-color: #000;
+            }
+
+            .selection .region {
+              background-color: rgba(0, 0, 0, .2)
+            }
+
+            .placeholder-text {
+              color: #888;
+            }
+          }
+        }
+
+        .conf-heading {
+          padding-top: @component-padding/2;
+          padding-bottom: @component-padding/2;
+          border-bottom: 1px solid #858585;
+          color: #262626;
+          font-size: 16px;
+          // margin: 10px 0;
+          -webkit-user-select: none;
+          cursor: default;
+        }
+
+        .state-div-content {
+          margin: 5px 5px 5px 0;
+          .btn-group.btn-else {
+            border: 1px solid #ccc;
+            margin-bottom:@component-padding/4;
+          }
+
+        }
+
+        .control-btn-group {
+          // margin:@component-padding/2 0 0 0;
+          width:100%;
+
+          .btn-else {
+            width:20%;
+            // border: 1px solid #ccc;
+            // margin-bottom:@component-padding/4;
+          }
+        }
+      }
+    }
+  }
+
+
+}
+
+.debug-bar {
+  // display: flex;
+  // -webkit-user-select: none;
+  height:@tab-height+10;
+  // vertical-align:middle;
+  padding: 2px 0px 2px 0px;
+  border-bottom: 4px solid #ccc;
+
+  .debug-btn-bar {
+    height:auto;
+    bottom: 0px;
+    text-align: center;
+    vertical-align: middle;
+  }
+}
+
+.server-panel {
+  margin: 0px 0px 5px 0px;
+  right:0;
+  left:0;
+  min-width: 0;
+  min-height:220px;
+  position: relative;
+}
+
+
+.control-ol {
+  // padding: 5px;
+  margin: 5px;
+  left: 0;
+  right: 9em;
+  min-width: 0;
+  // position: absolute;
+  overflow: auto;
+  -webkit-flex-direction: column;
+  border: 1px solid #ccc;
+  background-color: #e7e7e7;
+  box-shadow: -1px 0px 1px -1px #aeaeae inset;
+
+}
+
+.control-tab {
+  width:100%;
+  max-height:350px;
+  background-color: #e7e7e7;
+  box-shadow: -1px 0px 1px -1px #aeaeae inset;
+  .btn-td {
+    // align:"right";
+    max-width:25%;
+    .btn {
+      height:auto;
+      margin: 1px 1px 1px 0;
+    }
+  }
+}
+
+.debug-label {
+  color: @text-color-highlight;
+  margin: 5px 5px 5px 0px;
+}
+
+.debug-label-content {
+  color: @text-color-info;
+  margin: 5px 5px 5px 5px;
+}
+
+.db-remove {
+  cursor: pointer;
 }

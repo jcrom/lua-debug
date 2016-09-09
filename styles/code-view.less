@@ -1,0 +1,48 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+@font-family: 'sans regular','方正黑体_GBK','思源黑体 CN',sans-serif ;
+@emp-background-color: #F5FFFF;
+
+.resize-div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  cursor: row-resize;
+  z-index: 3
+}
+
+.code-view {
+
+
+  .code-body pre {
+    background: @tool-panel-background-color;
+    color: @text-color;
+  }
+
+  .output {
+  }
+
+  .stderr {
+    color: @text-color-error;
+  }
+
+  .line {
+    border-radius: 0px;
+    margin: 0px;
+    padding: 0px;
+  }
+}
+
+.code-body {
+  max-height:170px;
+  overflow-y: scroll;
+}
+
+.heading-close {
+  cursor: pointer;
+}
