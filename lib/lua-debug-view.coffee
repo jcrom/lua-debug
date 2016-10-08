@@ -2,6 +2,7 @@
 {$, $$, View,TextEditorView} = require 'atom-space-pen-views'
 DebugSocket = require './net/debug-server'
 BPEleView = require './bp-ele-view'
+LuaDebugVarView = require './lua-variable-view'
 
 
 # CodeRunner = require './code/code-runner'
@@ -19,8 +20,7 @@ module.exports = class LuaDebugView extends View
   @content: ->
     @div class: 'lua-debug-view tool-panel',=>
       @div  class:'lua-debug-panel', =>
-        @div class:'lua-debug-flow',  =>
-
+        @div outlet:'vLuaDebugFlow', class:'lua-debug-flow',  =>
 
           @div outlet: 'vServerConfView', class: 'lua-debug-server-row',style:"display:node;", =>
             @div class: "server-con panel-body padded", =>
@@ -37,8 +37,8 @@ module.exports = class LuaDebugView extends View
               @button class: 'btn btn-else btn-primary inline-block-tight ', click: 'start_server', "Start Server"
 
           # server state inline
-          @div outlet: 'vServerStateView', class: 'lua-debug-server-row', style:"display:inline;", =>
-          # @div outlet: 'vServerStateView', class: 'lua-debug-server-row', style:"display:none;", =>
+          @div outlet: 'vServerStateView', class: 'lua-debug-server-row', style:"display:none;", =>
+          # @div outlet: 'vServerStateView', class: 'lua-debug-server-row', style:"display:inline;", =>
             @div class: "server-con panel-body padded", =>
               @div class: "block conf-heading icon icon-gear", "Lua Debug Server"
 
@@ -61,7 +61,7 @@ module.exports = class LuaDebugView extends View
                 @button class: 'btn icon icon-arrow-down btn-else', title:"Run Done" ,click: 'send_done', ""
                 @button class: 'btn icon icon-tag btn-else', title:"Deactive breakpoints" ,click: 'send_debreakpoints', ""
 
-          # server state inline
+          # break points list
           @div outlet: 'vBPView', class: 'lua-debug-server-row', style:"display:inline;", =>
             @div class: "server-con panel-body padded", =>
               @div class: "block conf-heading icon icon-gear", "BreakPoints"
@@ -72,6 +72,17 @@ module.exports = class LuaDebugView extends View
               @div class:'control-ol', =>
                 @table class:'control-tab',outlet:'bp_tree'
 
+          # # local variable list
+          # @div outlet: 'vVarView', class: 'lua-debug-server-row', style:"display:inline;", =>
+          #   @div class: "server-con panel-body padded", =>
+          #     @div class: "block conf-heading icon icon-gear", "Variables"
+          #
+          #   @div class: "server-con panel-body padded",  =>
+          #     # @div class: "state-div-content", =>
+          #     #   @label outlet:"vServerState", class: "debug-label-content", "--"
+          #     @div class:'control-ol', =>
+          #       @table class:'control-tab',outlet:'glv_tree'
+
   initialize:(serializeState, @codeEventEmitter) ->
     @aBPMap = {}
     @emitter = new Emitter
@@ -79,11 +90,12 @@ module.exports = class LuaDebugView extends View
     @disposable = new CompositeDisposable
     # @codeView = new CodeView()
     @codeEventEmitter.doManaEmit(@)
+    @luaDebugVarView = new LuaDebugVarView()
 
     @disposable.add atom.commands.add "atom-workspace","lua-debug:toggle", => @toggle_show()
-
+    @disposable.add @luaDebugVarView
     # @disposable.add @oDebugServer
-
+    @vLuaDebugFlow.append @luaDebugVarView
 
     @sServerHost = atom.config.get(emp.LUA_SERVER_HOST)
     @sServerPort = atom.config.get(emp.LUA_SERVER_PORT)
@@ -114,6 +126,7 @@ module.exports = class LuaDebugView extends View
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->
+    # @vLuaDebugFlow.append @luaDebugVarView
 
 
   # Tear down any state and detach
@@ -153,6 +166,11 @@ module.exports = class LuaDebugView extends View
 
     @vServerConfView.hide()
     @vServerStateView.show()
+
+  refresh_variable:(fFileName, sVariable) =>
+    console.log "show variable:+++++++", fFileName, sVariable
+    @luaDebugVarView.refresh_variable(fFileName, sVariable)
+
 
   addBPCB:(bp) ->
     console.log bp

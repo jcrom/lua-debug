@@ -46,12 +46,13 @@ module.exports = class DebugSocket
         switch sState
           when '202'
             console.log newData
-            aNewArr = newData.match /^202 Paused\s+(.+)\s(\d*)/
-            # console.log aNewArr
+            aNewArr = newData.match /^202 Paused\s+(\S+)\s(\d*)\s(.*)?/
+            console.log aNewArr
             sFileName = aNewArr[1]
             iLineNum = emp.toNumber aNewArr[2]
-            console.log sFileName, iLineNum
-            @emitRTInfo(sFileName, iLineNum)
+            sLocalVar = aNewArr[3]
+            console.log sFileName, iLineNum, sLocalVar
+            @emitRTInfo(sFileName, iLineNum, sLocalVar)
 
           else
             console.log "state:#{sState}"
@@ -176,8 +177,8 @@ module.exports = class DebugSocket
     @emitter.on 'get-all-bp', callback
 
   # 发送 client 端的状态给 editor, 并使该 editor 被选中
-  emitRTInfo:(sFileName, iLineNum) =>
-    @emitter.emit 'get-runtime-info', {name:sFileName, line:iLineNum}
+  emitRTInfo:(sFileName, iLineNum, sLocalVar) =>
+    @emitter.emit 'get-runtime-info', {name:sFileName, line:iLineNum, variable:sLocalVar}
 
   onRTInfo:(callback) ->
     @emitter.on 'get-runtime-info', callback

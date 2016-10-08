@@ -65,7 +65,7 @@ class CodeEventEmitter
       @oDebugServer.sendAllBPsCB(e, @oBreakpointStore.oBPMaps)
     @disposable.add @oDebugServer.onRTInfo (e) =>
       @oBreakpointStore.activeEditor(e.name, e.line)
-
+      @luaDebugView.refresh_variable(e.name, e.variable)
 
 
 

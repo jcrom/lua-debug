@@ -54,9 +54,10 @@ class BreakpointStore
 
   activeEditor:(sFileName, iLineNum) ->
     console.log sFileName, iLineNum
-    oPoint = new Point(iLineNum, 0)
+    oPoint = new Point(iLineNum-1, 0)
     oEditor = @oEditors[sFileName]
-    oEditor?.setCursorScreenPosition(oPoint)
+    # oEditor?.setCursorScreenPosition(oPoint)
+    oEditor?.setCursorBufferPosition(oPoint)
     # if sFileName && iLineNum
     #   iLineNum = parseInt(iLineNum)
     #   options = {initialLine: iLineNum-1, initialColumn:0}
