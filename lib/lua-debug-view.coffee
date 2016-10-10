@@ -2,7 +2,7 @@
 {$, $$, View,TextEditorView} = require 'atom-space-pen-views'
 DebugSocket = require './net/debug-server'
 BPEleView = require './bp-ele-view'
-LuaDebugVarView = require './lua-variable-view'
+LuaDebugVarView = require './variable/lua-variable-view'
 
 
 # CodeRunner = require './code/code-runner'

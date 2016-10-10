@@ -1,9 +1,11 @@
 {$,$$, View} = require 'atom-space-pen-views'
-VarEleLiView = require './subview/variable-ele-li-view'
+VarEleLiView = require './variable-ele-li-view'
 
 
 module.exports =
 class VarEleView extends View
+  oStoreView:{}
+
   @content: ->
     # @ul outlet:"tree_trunk", class:'vlist_ul'
     @div =>
@@ -12,7 +14,8 @@ class VarEleView extends View
 
   initialize: (@oReList) ->
     # console.log @ul_list
-    console.log @oReList
+    # console.log @oReList
+    @oStoreView={}
     for sKey, sVal of @oReList
       # if typeof(sVal) isnt "object"
       #   console.log "isnt obj", sKey, sVal
@@ -22,10 +25,15 @@ class VarEleView extends View
       # else
       #   console.log "is obj", sKey, sVal
       vEleUlView = new VarEleLiView(sKey, sVal)
+      @oStoreView[sKey] = @new_store_obj(sVal, vEleUlView)
       @ul_list.append vEleUlView
 
   destroy: ->
     @detach()
+
+  new_store_obj: (val, vView) ->
+    return {val:val, view:vView}
+
 
 
   create_ele_li:() ->
@@ -33,15 +41,24 @@ class VarEleView extends View
     vEleLi.classList.add('vlist_li', 'icon')
 
 
-  ex: ->
-    $$ ->
-      @li outlet: 'li_view', class: 'vlist_li icon ', =>
-        if typeof(sVal) isnt "object"
-          @span class:'text-warning', "#{sKey} "
-          @span class:'text-info', " = #{sVal}"
-        else
-          @span class:'text-warning', "#{sKey} "
-          @span class:'text-info', " = Table"
+  refresh_variable:(oNewReList) ->
+    for sOKey, sOVal of @oStoreView
+      if not oNewReList[sOKey]
+        sOVal.view.destroy()
+        delete @oStoreView[sOKey]
+
+    # console.log oNewReList
+    for sKey, sVal of oNewReList
+      # console.log sKey, sVal
+      if oViewObj = @oStoreView[sKey]
+          oViewObj.view.refresh_variable(sKey, sVal)
+
+      else
+        # @oStoreView[sKey]
+        vEleUlView = new VarEleLiView(sKey, sVal)
+        @oStoreView[sKey] = @new_store_obj(sVal, vEleUlView)
+        @ul_list.append vEleUlView
+
 
   # format_list: (tmpK, tmpV)->
   #   $$ ->

@@ -59,7 +59,7 @@
         right:0;
         left:0;
         min-width: 0;
-        min-height:220px;
+        // min-height:220px;
         position: relative;
       }
 
@@ -67,7 +67,7 @@
         color:@emp-background-color;
 
         vertical-align: top;
-        padding:@component-padding/4 @component-padding @component-padding/2 @component-padding;
+        padding:@component-padding/4 @component-padding/4 @component-padding/2 @component-padding/4;
 
         right:0;
         left:0;
@@ -181,7 +181,7 @@
 
 .control-ol {
   // padding: 5px;
-  margin: 5px;
+  margin: 1px;
   left: 0;
   right: 9em;
   min-width: 0;
@@ -210,12 +210,13 @@
 }
 
 .vlist_ul {
-  left:2px;
+  // left:4px;
+  // margin: 0 0 0 @component-padding/4;
   right:0px;
   margin:0;
   // display: -webkit-flex;
   position: relative;
-  padding-left: 0; //@component-padding;
+  padding-left: @component-padding;
   list-style:none;
   cursor:default;
 

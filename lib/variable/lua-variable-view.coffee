@@ -4,7 +4,7 @@
 
 VarEleView = require './lua-variable-ele-view'
 
-emp = require './global/emp'
+emp = require '../global/emp'
 
 module.exports = class LuaDebugVarView extends View
 
@@ -23,6 +23,7 @@ module.exports = class LuaDebugVarView extends View
 
   initialize:() ->
     console.log @locv_tree
+    @iTestCon = 10
 
 
   show_var_view:() ->
@@ -37,22 +38,54 @@ module.exports = class LuaDebugVarView extends View
       @var_icon.removeClass('icon-triangle-right')
       @var_icon.addClass('icon-triangle-down')
 
-    # @test()
+    @test(@iTestCon)
 
   refresh_variable:(fFileName, sVariable) ->
-    @locv_tree.empty()
+
     console.log fFileName, sVariable
     oRe = JSON.parse(sVariable)
     console.log oRe
-    vVarEleView = new VarEleView(oRe)
-    @locv_tree.append vVarEleView
+    if !@vVarEleView
+      @vVarEleView = new VarEleView(oRe)
+      @locv_tree.append @vVarEleView
+    else
+      @vVarEleView.refresh_variable(oRe)
+
 
   test:() ->
-    a='{"a":1123,"c":10000,"b":2,"d": {"e":2,"f":1, "s":{"u":1, "p":3}},"ff":"<function >"}'
-    oRe = JSON.parse(a)
-    console.log oRe
+    @iTestCon = @iTestCon-1
+    if @iTestCon is 9
+      a='{"a":1123}'
+      oRe = JSON.parse(a)
+      console.log oRe
+      @vVarEleView = new VarEleView(oRe)
+      @locv_tree.append @vVarEleView
+    else if @iTestCon is 8
+      a='{ "b":2}'
+      oRe = JSON.parse(a)
+      console.log oRe
+      @vVarEleView.refresh_variable(oRe)
+    else if @iTestCon is 7
+      a='{"b":3, "c":10000, "a": {"e":2,"f":1}}'
+      oRe = JSON.parse(a)
+      console.log oRe
+      @vVarEleView.refresh_variable(oRe)
+    else if @iTestCon is 6
+      a='{"b":2, "c":10000, "a": {"e":3,"f":1}}'
+      oRe = JSON.parse(a)
+      console.log oRe
+      @vVarEleView.refresh_variable(oRe)
+    else if @iTestCon is 5
+      a='{"a": {"e":2,"d":5}, "b":4, "c":10000}'
+      oRe = JSON.parse(a)
+      console.log oRe
+      @vVarEleView.refresh_variable(oRe)
+      @iTestCon = 10
+    # a='{"a":1123,"c":10000,"b":2,"d": {"e":2,"f":1, "s":{"u":1, "p":3}},"ff":"<function >"}'
+    # oRe = JSON.parse(a)
+    # console.log oRe
     # for sKey, sVal of oRe
     # console.log @locv_tree1
-    vVarEleView = new VarEleView(oRe)
-    @locv_tree.append vVarEleView
+    # vVarEleView = new VarEleView(oRe)
+    # @locv_tree.append vVarEleView
     # vView = new TestV1(3)
