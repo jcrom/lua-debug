@@ -8,21 +8,17 @@ emp = require '../global/emp'
 
 module.exports = class LuaDebugVarView extends View
 
-  @content: ->
+  @content: (sViewName)->
     # local variable list
     @div outlet: 'vVarView', class: 'lua-debug-server-row', style:"display:inline;", =>
       @div class: "server-con panel-body padded", click:'show_var_view', =>
-        @div outlet:'var_icon', class: "block conf-heading icon icon-triangle-right", "Variables"
+        @div outlet:'var_icon', class: "block conf-heading icon icon-triangle-right", sViewName
 
       @div outlet:'var_list_panel', class: "server-con panel-body padded",style:"display:none;",  =>
-        # @div class: "state-div-content", =>
-        #   @label outlet:"vServerState", class: "debug-label-content", "--"
         @div class:'control-ol', outlet:'locv_tree'
-          # @table class:'control-tab',outlet:'locv_tree'
-          # @ul class:'vlist_ul',outlet:'locv_tree1'
 
-  initialize:() ->
-    console.log @locv_tree
+  initialize:(@sViewName) ->
+    # console.log @locv_tree
     @iTestCon = 10
 
 
@@ -38,13 +34,14 @@ module.exports = class LuaDebugVarView extends View
       @var_icon.removeClass('icon-triangle-right')
       @var_icon.addClass('icon-triangle-down')
 
-    @test(@iTestCon)
+    # @test(@iTestCon)
 
-  refresh_variable:(fFileName, sVariable) ->
+  refresh_variable:(fFileName, oRe) ->
 
-    console.log fFileName, sVariable
-    oRe = JSON.parse(sVariable)
-    console.log oRe
+    console.log fFileName, oRe
+    # oRe = JSON.parse(sVariable)
+    # console.log oRe
+    # oRe = delete oRe.G
     if !@vVarEleView
       @vVarEleView = new VarEleView(oRe)
       @locv_tree.append @vVarEleView

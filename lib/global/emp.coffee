@@ -19,6 +19,11 @@ module.exports =
   LUA_MSG_OUT:"OUT\n"
   LUA_MSG_DONE:"DONE\n"
 
+  # VIEW NAME
+  LOCAL_VAR_VIEW_NAME:"Variables"
+  UP_VAR_VIEW_NAME:"UP Variables"
+  GLOBAL_VAR_VIEW_NAME:"Global Variables"
+
 
   get_pack_path: () ->
     atom.packages.resolvePackagePath(this.PACKAGE_NAME)

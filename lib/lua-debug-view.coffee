@@ -3,7 +3,8 @@
 DebugSocket = require './net/debug-server'
 BPEleView = require './bp-ele-view'
 LuaDebugVarView = require './variable/lua-variable-view'
-
+# LuaDebugGloVarView = require './variable/lua-global-variable-view'
+# LuaDebugUPVarView = require './variable/lua-up-variable-view'
 
 # CodeRunner = require './code/code-runner'
 # CodeView = require './code/code-view'
@@ -52,14 +53,15 @@ module.exports = class LuaDebugView extends View
               #   @label outlet:"emp_cl_no", class: "debug-label-content", ""
               @button class: 'btn btn-else btn-error inline-block-tight', click: 'stop_server', "Stop Server"
             @div class: "server-con panel-body padded",  =>
-              @button class: 'btn btn-else btn-primary inline-block-tight ', click: 'run_code', "Run Code"
+              @button class: 'btn btn-else btn-primary inline-block-tight ', click: 'run_code', "Run Code In Atom"
             @div class: "server-con panel-body padded",  =>
               @div class: "control-btn-group btn-group" ,=>
-                @button class: 'btn icon icon-playback-play btn-else', title:"Run" ,click: 'send_run', ""
-                @button class: 'btn icon icon-steps btn-else', title:"Next Line" ,click: 'send_step', ""
-                @button class: 'btn icon icon-move-right btn-else', title:"Current Return" ,click: 'send_return', ""
-                @button class: 'btn icon icon-arrow-down btn-else', title:"Run Done" ,click: 'send_done', ""
-                @button class: 'btn icon icon-tag btn-else', title:"Deactive breakpoints" ,click: 'send_debreakpoints', ""
+                @button class: 'btn icon icon-playback-play btn-else', title:"Run Until Next Breakpoint" ,click: 'send_run'
+                @button class: 'btn icon icon-move-down btn-else', title:"Step Over" ,click: 'send_over'
+                @button class: 'btn icon icon-steps btn-else', title:"Step Into" ,click: 'send_step'
+                @button class: 'btn icon icon-move-up btn-else', title:"Step Out" ,click: 'send_out'
+                @button class: 'btn icon icon-arrow-down btn-else', title:"Run Done" ,click: 'send_done'
+
 
           # break points list
           @div outlet: 'vBPView', class: 'lua-debug-server-row', style:"display:inline;", =>
@@ -90,12 +92,16 @@ module.exports = class LuaDebugView extends View
     @disposable = new CompositeDisposable
     # @codeView = new CodeView()
     @codeEventEmitter.doManaEmit(@)
-    @luaDebugVarView = new LuaDebugVarView()
+    @luaDebugVarView = new LuaDebugVarView(emp.LOCAL_VAR_VIEW_NAME)
+    @luaDebugUPVarView = new LuaDebugVarView(emp.UP_VAR_VIEW_NAME)
+    @luaDebugGloVarView = new LuaDebugVarView(emp.GLOBAL_VAR_VIEW_NAME )
 
     @disposable.add atom.commands.add "atom-workspace","lua-debug:toggle", => @toggle_show()
-    @disposable.add @luaDebugVarView
+    @disposable.add @luaDebugVarView,@luaDebugUPVarView, @luaDebugGloVarView
     # @disposable.add @oDebugServer
     @vLuaDebugFlow.append @luaDebugVarView
+    @vLuaDebugFlow.append @luaDebugUPVarView
+    @vLuaDebugFlow.append @luaDebugGloVarView
 
     @sServerHost = atom.config.get(emp.LUA_SERVER_HOST)
     @sServerPort = atom.config.get(emp.LUA_SERVER_PORT)
@@ -169,7 +175,10 @@ module.exports = class LuaDebugView extends View
 
   refresh_variable:(fFileName, sVariable) =>
     console.log "show variable:+++++++", fFileName, sVariable
-    @luaDebugVarView.refresh_variable(fFileName, sVariable)
+    oRe = JSON.parse(sVariable)
+    @luaDebugVarView.refresh_variable(fFileName, oRe.locVal)
+    @luaDebugUPVarView.refresh_variable(fFileName, oRe.upVal)
+    @luaDebugGloVarView.refresh_variable(fFileName, oRe.G)
 
 
   addBPCB:(bp) ->
@@ -200,26 +209,33 @@ module.exports = class LuaDebugView extends View
   send_run:() =>
     @emitter.emit 'send_run'
 
+  # runs until next line, stepping over function calls
+  send_over:() =>
+    @emitter.emit 'send_over'
+
   # runs until next line, stepping into function calls
   send_step:() =>
     @emitter.emit 'send_step'
     # @oDebugServer.send(emp.LUA_MSG_STEP)
 
-  # runs until next line, stepping over function calls
-  send_over:() =>
-    @emitter.emit 'send_over'
+  # runs until line after returning from current function
+  send_out:() =>
+    @emitter.emit 'send_out'
     # @oDebugServer.send(emp.LUA_MSG_OVER)
 
   send_done:() =>
     @emitter.emit 'send_done'
     # @oDebugServer.send(emp.LUA_MSG_DONE)
 
+
   onSendRun:(callback)->
     @emitter.on 'send_run', callback
-  onSendStep:(callback)->
-    @emitter.on 'send_step', callback
   onSendOver:(callback)->
     @emitter.on 'send_over', callback
+  onSendStep:(callback)->
+    @emitter.on 'send_step', callback
+  onSendOut:(callback)->
+    @emitter.on 'send_out', callback
   onSendDone:(callback)->
     @emitter.on 'send_done', callback
 

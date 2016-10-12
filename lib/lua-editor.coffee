@@ -20,7 +20,7 @@ class LuaEditor
     grammar = tmpEditor.getGrammar()
     unless grammar.scopeName is emp.LUA_GRAMMAR
       return
-    console.log grammar
+    # console.log grammar
 
     # o = {markers:[],gutter: tmpEditor.addGutter({ name: 'lua-debug', priority: -100 })
     # }

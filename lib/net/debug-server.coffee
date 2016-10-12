@@ -145,8 +145,9 @@ module.exports = class DebugSocket
 
   sendAllBPsCB:({msg:iRPort}, oBPMaps) ->
     if oSocket = @aSocketArr[iRPort]
-      for k, oBP of oBPMaps
-        @send_specify(oSocket, oBP.addCommand())
+      for k, aBPList of oBPMaps
+        for iL, oBP of aBPList
+          @send_specify(oSocket, oBP.addCommand())
 
 
 

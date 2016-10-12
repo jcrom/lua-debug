@@ -8,4 +8,4 @@ class Breakpoint
     "SETB #{@sName} #{@iLine}\n"
 
   delCommand: ->
-    "delb #{@sName} #{@iLine}\n"
+    "DELB #{@sName} #{@iLine}\n"
