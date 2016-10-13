@@ -51,6 +51,10 @@ class CodeEventEmitter
     @disposable.add @luaDebugView.onSendOut (e)=>
       @oDebugServer.send(emp.LUA_MSG_OUT)
 
+    # use for test
+    @disposable.add @luaDebugView.onSendMsg (sMsg)=>
+      @oDebugServer.send(sMsg)
+
     @disposable.add @luaDebugView.onDelBPEvnent (bp)=>
       @oBreakpointStore.delBPCB(bp)
       @oDebugServer.delBPCB bp

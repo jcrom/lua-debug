@@ -47,11 +47,14 @@ module.exports = class LuaDebugView extends View
               @div class: "state-div-content", =>
                 @label class: "debug-label", "Server State   : "
                 @label outlet:"vServerState", class: "debug-label-content", "--"
-
+              @div class: 'controls', =>
+                @div class: 'setting-editor-container', =>
+                  @subview 'vMsgEditor', new TextEditorView(mini: true, attributes: {id: 'msg', type: 'string'}, placeholderText: 'Send Msg')
               # @div class: "state-div-content", =>
               #   @label class: "debug-label", "Client Number: "
               #   @label outlet:"emp_cl_no", class: "debug-label-content", ""
               @button class: 'btn btn-else btn-error inline-block-tight', click: 'stop_server', "Stop Server"
+              @button class: 'btn btn-else btn-info inline-block-tight', click: 'send_msg', "Send"
             @div class: "server-con panel-body padded",  =>
               @button class: 'btn btn-else btn-primary inline-block-tight ', click: 'run_code', "Run Code In Atom"
             @div class: "server-con panel-body padded",  =>
@@ -155,6 +158,14 @@ module.exports = class LuaDebugView extends View
     # @oDebugServer.start(sNewServerHost,sNewServerPort, @show_state_panel, @show_server_panel)
     # @show_state_panel()
 
+  send_msg:(event, element) ->
+    sMsg = @vMsgEditor.getText()
+    console.log sMsg
+    if sMsg
+      @emitter.emit 'send_msg', sMsg
+
+  onSendMsg:(callback)->
+    @emitter.on 'send_msg', callback
 
 
   stop_server:(event, element) ->
@@ -175,7 +186,10 @@ module.exports = class LuaDebugView extends View
 
   refresh_variable:(fFileName, sVariable) =>
     console.log "show variable:+++++++", fFileName, sVariable
-    oRe = JSON.parse(sVariable)
+    if typeof(sVariable) is 'string'
+      oRe = JSON.parse(sVariable)
+    else
+      oRe = sVariable
     @luaDebugVarView.refresh_variable(fFileName, oRe.locVal)
     @luaDebugUPVarView.refresh_variable(fFileName, oRe.upVal)
     @luaDebugGloVarView.refresh_variable(fFileName, oRe.G)

@@ -6,6 +6,7 @@ emp = require '../global/emp'
 DEFAULT_HOST = 'default'
 DEFAULT_PORT = '8172'
 DEFAULT_TIMEOUT = 14400000
+MSG_END_FLAG = "#luadebugflag#"
 
 module.exports = class DebugSocket
   oServer:null
@@ -37,25 +38,53 @@ module.exports = class DebugSocket
       # if tailChar == '\0'
       #   tailFlag = 1
       #   console.log "tailChar is \\0 "
-
-      newDataArr = sData.split /\n/ig
+      newDataArr = sData.split MSG_END_FLAG
+      # try MSG_END_FLAG
       console.log newDataArr
-      _.each newDataArr, (newData) =>
-        # console.log newData
-        sState = newData.match(/^(\d)+/ig)?[0]
-        switch sState
-          when '202'
-            console.log newData
-            aNewArr = newData.match /^202 Paused\s+(\S+)\s(\d*)\s(.*)?/
-            console.log aNewArr
-            sFileName = aNewArr[1]
-            iLineNum = emp.toNumber aNewArr[2]
-            sLocalVar = aNewArr[3]
-            console.log sFileName, iLineNum, sLocalVar
-            @emitRTInfo(sFileName, iLineNum, sLocalVar)
 
-          else
-            console.log "state:#{sState}"
+      for sEleData in newDataArr
+        if sEleData
+          console.log sEleData
+          oRe = JSON.parse sEleData
+
+          sState = oRe.state
+          console.log "lua send state: ", sState
+          switch sState
+            when '202'
+              console.log oRe
+          # aNewArr = newData.match /^202 Paused\s+(\S+)\s(\d*)\s(.*)?/
+          # console.log aNewArr
+              sFileName = oRe.file
+              iLineNum = emp.toNumber oRe.line
+              sLocalVar = oRe.args
+              console.log sFileName, iLineNum, sLocalVar
+              @emitRTInfo(sFileName, iLineNum, sLocalVar)
+            else
+              console.log "state:#{sState}", oRe
+      #
+      # catch error
+      #   console.error error
+
+
+
+      # newDataArr = sData.split /\n/ig
+      # console.log newDataArr
+      # _.each newDataArr, (newData) =>
+        # console.log newData
+        # sState = newData.match(/^(\d)+/ig)?[0]
+        # switch sState
+        #   when '202'
+        #     console.log newData
+        #     aNewArr = newData.match /^202 Paused\s+(\S+)\s(\d*)\s(.*)?/
+        #     console.log aNewArr
+        #     sFileName = aNewArr[1]
+        #     iLineNum = emp.toNumber aNewArr[2]
+        #     sLocalVar = aNewArr[3]
+        #     console.log sFileName, iLineNum, sLocalVar
+        #     @emitRTInfo(sFileName, iLineNum, sLocalVar)
+        #
+        #   else
+        #     console.log "state:#{sState}"
 
 
     oSocket.on 'close', (data)=>
@@ -127,6 +156,7 @@ module.exports = class DebugSocket
 
 
   send:(sMsg)->
+    console.log @aSocketArr, sMsg
     for k, oSocket of @aSocketArr
       # _.each @aSocketArr, (oSocket)=>
       oSocket.write(sMsg)

@@ -79,7 +79,7 @@ class BreakpointStore
       console.log oEditor
 
 
-      oNewEditor = atom.workspace.open(oEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
+      atom.workspace.open(oEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
         console.log "after editor open", oNewEditor
         oNewEditor?.setCursorBufferPosition(oPoint)
         @oEditors[sShortFileName] = oNewEditor
@@ -96,10 +96,10 @@ class BreakpointStore
       _.each aEditorList, (oTmpEditor) =>
         sTmpName = oTmpEditor.getTitle()
         if sShortFileName is sTmpName
-          oNewEditor = atom.workspace.open(oTmpEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
+          atom.workspace.open(oTmpEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
             console.log "after editor open", oNewEditor
             oNewEditor?.setCursorBufferPosition(oPoint)
-          @oEditors[sShortFileName] = oNewEditor
+            @oEditors[sShortFileName] = oNewEditor
 
 
     # console.log oNewEditor
