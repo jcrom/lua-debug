@@ -1,6 +1,7 @@
 {CompositeDisposable, Emitter} = require 'atom'
 
 net = require('net');
+fs = require 'fs'
 _ = require('underscore-plus')
 emp = require '../global/emp'
 DEFAULT_HOST = 'default'
@@ -28,7 +29,8 @@ module.exports = class DebugSocket
     console.log "New Client connect:#{sRemoteAddress}:#{iPort}"
     sBuffer = ''
     oSocket.on 'data', (sData)=>
-      console.log "data:#{sData}"
+      # console.log "data:#{sData}"
+
       # console.log typeof oData
       sData = String(sData)
       tailFlag = 0  #字符串结尾再减一
@@ -110,7 +112,7 @@ module.exports = class DebugSocket
       if sEleData.trim().length > 2
         @process_msg(sEleData)
   process_msg:(sData) ->
-    console.log sData
+    # console.log sData
     # sNewData = sData.toString()
     # console.log oData[oData.length-1]
     # console.log oData[oData.length-1] is '\0'
@@ -126,11 +128,11 @@ module.exports = class DebugSocket
           console.log "lua send state: ", sState
           switch sState
             when '202'
-              console.log oRe
+              # console.log oRe
               sFileName = oRe.file
               iLineNum = emp.toNumber oRe.line
               sLocalVar = oRe.args
-              console.log sFileName, iLineNum, sLocalVar
+              console.log sFileName, iLineNum #, sLocalVar
               @emitRTInfo(sFileName, iLineNum, sLocalVar)
             else
               console.log "state:#{sState}", oRe

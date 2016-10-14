@@ -1215,10 +1215,11 @@ end
 
 -- format local variables string
 function format_args(tab)
+  -- db_print.warn("start:", inspect1(tab))
   local sARe = ""
   local sFilter = ""
   for k,v in pairs(tab) do
-    -- print("k :v:", k, v)
+    -- print("k :v: t", k, v, type(v))
     local sVal = format_arg(v)
     local sRe ="\""..k.."\":"..sVal
     -- print(sRe)
@@ -1226,7 +1227,7 @@ function format_args(tab)
     sFilter = ","
   end
   sARe = " {"..sARe.."}"
-  db_print.info("\n end re:", sARe)
+  -- db_print.info("\n end re:", sARe)
 
   return  sARe
 end
@@ -1234,14 +1235,23 @@ end
 function format_arg (arg)
   -- body...
   db_print.info(arg)
+
   local tType = type(arg)
   -- print(arg, ":", tType)
 
   local sRe = ""
   if (tType == "string") then
-    sRe = "\""..arg.."\""
+    sRe = string.gsub(arg, "\n", " ")
+    sRe = string.format('%q', sRe)
   elseif tType == "number" then
-    sRe = arg
+    if arg ~= arg then
+      sRe = "\"NAN\""
+    elseif arg == math.huge or arg == -math.huge then
+      sRe = "\"INF\""
+    else
+      sRe = arg
+    end
+
   elseif tType == "table" then
     sRe = format_args(arg)
   elseif tType == "boolean" then
@@ -1254,7 +1264,10 @@ function format_arg (arg)
     sRe = "nil"
   else
     local sFun = tostring(arg)
-    sRe = "\""..sFun.."\""
+    -- print("else -------", tType, arg, sFun)
+
+    sRe = "\"" .. sFun .. "\"";
+    -- sRe = sRe
   -- elseif tType == "function" then
   --   local sFun = tostring(arg)
   --   sRe = "\""..sFun.."\""
@@ -1323,6 +1336,15 @@ function format_err_send(sCmd, sErrMsg, sArg)
   return sRe
 end
 
+function isINF(value)
+  return value == math.huge or value == -math.huge
+end
+
+function isNAN(value)
+  return value ~= value
+end
+
+
 local function output(stream, data)
   if server then return server:send("204 Output "..stream.." "..tostring(#data).."\n"..data) end
 end
@@ -1343,7 +1365,7 @@ local lasthost, lastport
 
 -- Starts a debug session by connecting to a controller
 -- jcstart
-local function start(controller_host, controller_port)
+function start(controller_host, controller_port)
   -- only one debugging session can be run (as there is only one debug hook)
   if isrunning() then return end
 

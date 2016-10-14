@@ -38,7 +38,7 @@ module.exports = class LuaDebugVarView extends View
 
   refresh_variable:(fFileName, oRe) ->
 
-    console.log fFileName, oRe
+    # console.log fFileName, oRe
     # oRe = JSON.parse(sVariable)
     # console.log oRe
     # oRe = delete oRe.G
