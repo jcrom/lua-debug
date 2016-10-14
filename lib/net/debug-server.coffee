@@ -6,7 +6,8 @@ emp = require '../global/emp'
 DEFAULT_HOST = 'default'
 DEFAULT_PORT = '8172'
 DEFAULT_TIMEOUT = 14400000
-MSG_END_FLAG = "#luadebugflag#"
+MSG_END_FLAG = "#luaDebugEndflag#"
+MSG_START_FLAG = "#luaDebugStartflag#"
 
 module.exports = class DebugSocket
   oServer:null
@@ -25,47 +26,55 @@ module.exports = class DebugSocket
     iPort = oSocket.remotePort
     sRemoteAddress = oSocket.remoteAddress
     console.log "New Client connect:#{sRemoteAddress}:#{iPort}"
-    oSocket.on 'data', (oData)=>
-      console.log "data:#{oData}"
+    sBuffer = ''
+    oSocket.on 'data', (sData)=>
+      console.log "data:#{sData}"
       # console.log typeof oData
-      # console.log oData
-      sData = oData.toString()
-      # console.log oData[oData.length-1]
-      # console.log oData[oData.length-1] is '\0'
-      # tailFlag = 0  #字符串结尾再减一
-      # tailChar = sData.substr -1, 1 # 取得data最后一个字符
-      # console.log tailChar
-      # if tailChar == '\0'
-      #   tailFlag = 1
-      #   console.log "tailChar is \\0 "
-      newDataArr = sData.split MSG_END_FLAG
-      # try MSG_END_FLAG
-      console.log newDataArr
-
-      for sEleData in newDataArr
-        if sEleData
-          console.log sEleData
-          oRe = JSON.parse sEleData
-
-          sState = oRe.state
-          console.log "lua send state: ", sState
-          switch sState
-            when '202'
-              console.log oRe
-          # aNewArr = newData.match /^202 Paused\s+(\S+)\s(\d*)\s(.*)?/
-          # console.log aNewArr
-              sFileName = oRe.file
-              iLineNum = emp.toNumber oRe.line
-              sLocalVar = oRe.args
-              console.log sFileName, iLineNum, sLocalVar
-              @emitRTInfo(sFileName, iLineNum, sLocalVar)
+      sData = String(sData)
+      tailFlag = 0  #字符串结尾再减一
+      tailChar = sData.substr -1, 1 # 取得data最后一个字符
+      if tailChar == '\0'
+        tailFlag = 1
+      if sData.indexOf(MSG_START_FLAG) == 0
+        if (sData.lastIndexOf(MSG_END_FLAG) == sData.length - MSG_END_FLAG.length - tailFlag)
+          # do process sData
+          # console.log "receive socket start: 1---"
+          @do_preprocess(sData)
+          sBuffer=''
+        else
+          # console.log "receive socket start: 2---"
+          sBuffer=sBuffer+sData
+      else
+        if sData.indexOf(MSG_END_FLAG) > -1
+          # if (sData.lastIndexOf(MSG_END_FLAG) == sData.length - MSG_END_FLAG.length - tailFlag)
+          aSplitRe = sData.split MSG_END_FLAG
+          # console.log " receive socket end: ", aSplitRe
+          iSpliteReLen = aSplitRe.length
+          switch iSpliteReLen
+            when 1
+              # console.log " receive socket end: 3---"
+              sBuffer+=sData
+              # console.log sBuffer
+              @process_msg(sBuffer)
+              #
+              sBuffer=''
+            when 2
+              # console.log " receive socket end:4---"
+              sBuffer+=aSplitRe[0]
+              @process_msg(sBuffer)
+              sBuffer=aSplitRe[1]
             else
-              console.log "state:#{sState}", oRe
-      #
-      # catch error
-      #   console.error error
-
-
+              # console.log " receive socket end:5---"
+              sBuffer+=aSplitRe.shift()
+              @process_msg(sBuffer)
+              sBuffer=aSplitRe.pop()
+              _.each aSplitRe, (sTmpMsg) =>
+                @process_msg(sTmpMsg)
+              # if aSplitRe
+              sBuffer
+        else
+          # console.log " receive socket end:: else ---- "
+          sBuffer=sBuffer+sData
 
       # newDataArr = sData.split /\n/ig
       # console.log newDataArr
@@ -86,7 +95,6 @@ module.exports = class DebugSocket
         #   else
         #     console.log "state:#{sState}"
 
-
     oSocket.on 'close', (data)=>
       console.log "Client close:#{sRemoteAddress}"
       @delSocket(iPort)
@@ -94,6 +102,43 @@ module.exports = class DebugSocket
     oSocket.setTimeout DEFAULT_TIMEOUT, =>
       console.log("Client connect timeout")
       oSocket.end()
+
+  do_preprocess:(sData) ->
+    # console.log  "process resule =================:", sData
+    newDataArr = sData.split MSG_END_FLAG
+    for sEleData in newDataArr
+      if sEleData.trim().length > 2
+        @process_msg(sEleData)
+  process_msg:(sData) ->
+    console.log sData
+    # sNewData = sData.toString()
+    # console.log oData[oData.length-1]
+    # console.log oData[oData.length-1] is '\0'
+    newDataArr = sData.split MSG_START_FLAG
+    # console.log newDataArr
+    for sEleData in newDataArr
+      if sEleData?.trim().length > 2
+        try # MSG_END_FLAG
+          # console.log sEleDasta
+          oRe = JSON.parse sEleData
+
+          sState = oRe.state
+          console.log "lua send state: ", sState
+          switch sState
+            when '202'
+              console.log oRe
+              sFileName = oRe.file
+              iLineNum = emp.toNumber oRe.line
+              sLocalVar = oRe.args
+              console.log sFileName, iLineNum, sLocalVar
+              @emitRTInfo(sFileName, iLineNum, sLocalVar)
+            else
+              console.log "state:#{sState}", oRe
+        #
+        catch error
+          console.log "------------------------\n", sEleData
+          console.error error
+
 
   # start server
   start:(iIP=DEFAULT_HOST, iPort=DEFAULT_PORT, @fSCallback, @fFCallback)=>

@@ -11,7 +11,7 @@ local table = table or require "table"
 local string = string or require "string"
 local coroutine = coroutine or require "coroutine"
 local debug = require "debug"
-local inspect1 = require "inspect"
+-- local inspect1 = require "inspect"
 -- local inspect1 = empty_fun
 local empty_fun = function (args) return args end
 local inspect = empty_fun
@@ -46,7 +46,7 @@ local gsub, sub, find = string.gsub, string.sub, string.find
 -- local print_log = print
 local print_log = function (...) end
 local db_print = {
-  info=print, --  empty_fun,
+  info=empty_fun, --  empty_fun,
   error=print,
   warn=print
 }
@@ -101,7 +101,9 @@ local _FILE_KEY = "file"
 local _LINe_KEY = "line"
 local _ARGS_KEY = "args"
 local _ERR_KEY = "error"
-local _SOCKET_MSG_END_FLAG = "\n#luadebugflag#"
+local _SOCKET_MSG_END_FLAG = "\n#luaDebugEndflag#"
+local _SOCKET_MSG_START_FLAG = "#luaDebugStartflag#"
+
 
 if not setfenv then -- Lua 5.2+
   -- based on http://lua-users.org/lists/lua-l/2010-06/msg00314.html
@@ -1035,7 +1037,7 @@ local function debugger_loop(sev, svars, sfile, sline)
 
       -- db_print.info("local val:", inspect1(vars["locVal"]))
       -- db_print.info("Global var ----:", inspect1(getmetatable(vars).__index._G._G))
-      db_print.info("969 ev:", ev, "vars:", inspect1(vars), "file:", file, "line:", line, "idx_watch:", idx_watch)
+      -- db_print.info("969 ev:", ev, "vars:", inspect1(vars), "file:", file, "line:", line, "idx_watch:", idx_watch)
       eval_env = vars
       if ev == events.BREAK then
         send_normal("202", file, tostring(line), tTabVal)
@@ -1176,7 +1178,7 @@ function format_variables (tAllVar)
   tToFormatTab["locVal"] = tAllVar["locVal"]
 
   tToFormatTab["upVal"] = tAllVar["upVal"]
-  db_print.info("local val:", inspect1(tToFormatTab["locVal"]), "\n up var:", inspect1(tToFormatTab["upVal"]))
+  -- db_print.info("local val:", inspect1(tToFormatTab["locVal"]), "\n up var:", inspect1(tToFormatTab["upVal"]))
 
   local tReTab = {}
   -- db_print.info("+++++++:", inspect1(tmpG))
@@ -1189,7 +1191,7 @@ function format_variables (tAllVar)
       tReTab[k] = v
     end;
   end;
-  db_print.info("++++++++++++++++-------------:", inspect1(tReTab))
+  -- db_print.info("++++++++++++++++-------------:", inspect1(tReTab))
   tToFormatTab["G"] = tReTab
 
   -- return format_args(tToFormatTab)
@@ -1224,14 +1226,14 @@ function format_args(tab)
     sFilter = ","
   end
   sARe = " {"..sARe.."}"
-  print("\n end re:", sARe)
+  db_print.info("\n end re:", sARe)
 
   return  sARe
 end
 
 function format_arg (arg)
   -- body...
-  print(arg)
+  db_print.info(arg)
   local tType = type(arg)
   -- print(arg, ":", tType)
 
@@ -1297,7 +1299,7 @@ function format_send(sCmd, sFile, iLine, sArg)
   -- end;
 
   db_print.info(tTab)
-  local sRe = format_args(tTab).._SOCKET_MSG_END_FLAG
+  local sRe = _SOCKET_MSG_START_FLAG..format_args(tTab).._SOCKET_MSG_END_FLAG
   db_print.info(sRe)
   return sRe
 end
@@ -1316,7 +1318,7 @@ function format_err_send(sCmd, sErrMsg, sArg)
   -- end;
 
   db_print.info(tTab)
-  local sRe = format_args(tTab).._SOCKET_MSG_END_FLAG
+  local sRe = _SOCKET_MSG_START_FLAG..format_args(tTab).._SOCKET_MSG_END_FLAG
   db_print.info(sRe)
   return sRe
 end
@@ -1584,7 +1586,7 @@ local function handle(params, client, options)
         file = string.gsub(file, "\\", "/") -- convert slash
         file = removebasedir(file, basedir)
       end
-      print("msgSETB " .. file .. " " .. line .. "\n")
+      db_print.info("msgSETB " .. file .. " " .. line .. "\n")
       client:send("SETB " .. file .. " " .. line .. "\n")
       if command == "asetb" or client:receive() == "200 OK" then
         set_breakpoint(file, line)
