@@ -8,7 +8,7 @@ class LuaEditor
   editorMap:null
 
   constructor:() ->
-    console.log "lua editor constructor"
+    # console.log "lua editor constructor"
     @disposable = new CompositeDisposable()
     @breakMarkers = []
     @editorMap = new Map()
@@ -31,7 +31,7 @@ class LuaEditor
     gutterView.addEventListener 'click', (ev)=> @onGutterClick(tmpEditor, ev)
 
   onGutterClick:(editor, ev) =>
-    console.log "onGutterClick callback"
+    # console.log "onGutterClick callback"
     editorView = atom.views.getView editor
     {row:sLine} = editorView.component.screenPositionForMouseEvent(ev)
     sNLine = editor.bufferRowForScreenRow(sLine)+1
@@ -41,7 +41,7 @@ class LuaEditor
     @addBreakpoint(sName, sFile, sNLine, editor)
 
   addBreakpoint:(sName, sFile, sLine, oEditor) =>
-    console.log 'addBreakpoint'
+    # console.log 'addBreakpoint'
     oBP = new Breakpoint(sName, sFile, sLine)
     @oBreakpointStore.addBreakpoint(oBP, oEditor)
 

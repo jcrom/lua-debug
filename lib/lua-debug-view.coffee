@@ -185,7 +185,7 @@ module.exports = class LuaDebugView extends View
     @vServerStateView.show()
 
   refresh_variable:(fFileName, sVariable) =>
-    console.log "show variable:+++++++", fFileName, sVariable
+    # console.log "show variable:+++++++", fFileName, sVariable
     if typeof(sVariable) is 'string'
       oRe = JSON.parse(sVariable)
     else
@@ -196,7 +196,7 @@ module.exports = class LuaDebugView extends View
 
 
   addBPCB:(bp) ->
-    console.log bp
+    # console.log bp
     vBPEleView = new BPEleView(@delBPEvnent, bp)
     @aBPMap[bp.sID] = vBPEleView
     @bp_tree.append vBPEleView

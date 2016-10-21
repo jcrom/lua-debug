@@ -14,7 +14,7 @@ class BreakpointStore
     @codeEventEmitter.doBPEmit(@)
 
   addBreakpoint:(oBP, oEditor) ->
-    console.log oEditor
+    # console.log oEditor
     # console.log breakpoint
     addDecoration = true
     # editor = atom.workspace.getActiveTextEditor()
@@ -38,14 +38,14 @@ class BreakpointStore
     else
       # oEditor = atom.workspace.getActiveTextEditor()
       ds = oEditor.getLineNumberDecorations(type: "line-number", class: "line-number-blue")
-      console.log ds
+      # console.log ds
       for d in ds
         marker = d.getMarker()
         marker.destroy() if marker.getBufferRange().start.row == oBP.iLine-1
       @delBPEmit(oBP)
 
   storeBP:(oBP, oEditor) ->
-    console.log "store bp:", oBP
+    # console.log "store bp:", oBP
     if !@oBPMaps[oBP.sName]
       @oBPMaps[oBP.sName] = {}
     @oBPMaps[oBP.sName][oBP.iLine] = oBP
@@ -71,15 +71,16 @@ class BreakpointStore
 
   activeEditor:(sFileName, iLineNum) ->
     console.log sFileName, iLineNum
-    sShortFileName = path.basename sFileName
     oPoint = new Point(iLineNum-1, 0)
-    oEditor = @oEditors[sShortFileName]
+    sShortFileName = path.basename sFileName
+    if !oEditor = @oEditors[sFileName]
+      oEditor = @oEditors[sShortFileName]
     # oEditor?.setCursorScreenPosition(oPoint)
     if oEditor
       # console.log oEditor
 
       atom.workspace.open(oEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
-        console.log "after editor open", oNewEditor
+        # console.log "after editor open", oNewEditor
         oNewEditor?.setCursorBufferPosition(oPoint)
         @oEditors[sShortFileName] = oNewEditor
 
@@ -92,13 +93,28 @@ class BreakpointStore
                 oV.decoration = @add_bp(oNewEditor, iK)
     else
       aEditorList = atom.workspace.getTextEditors()
-      _.each aEditorList, (oTmpEditor) =>
+      aFilterRe = _.filter aEditorList, (oTmpEditor) =>
         sTmpName = oTmpEditor.getTitle()
-        if sShortFileName is sTmpName
-          atom.workspace.open(oTmpEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
-            # console.log "after editor open", oNewEditor
-            oNewEditor?.setCursorBufferPosition(oPoint)
-            @oEditors[sShortFileName] = oNewEditor
+        sShortFileName is sTmpName
+
+      # console.log aFilterRe
+      if aFilterRe.length > 0
+        console.log "has filtered editor"
+        oTmpEditor = aFilterRe[0]
+        atom.workspace.open(oTmpEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
+          # console.log "after editor open", oNewEditor
+          oNewEditor?.setCursorBufferPosition(oPoint)
+          @oEditors[sShortFileName] = oNewEditor
+      else
+        console.log "no editor find"
+
+      # _.each aEditorList, (oTmpEditor) =>
+      #   sTmpName = oTmpEditor.getTitle()
+      #   if sShortFileName is sTmpName
+      #     atom.workspace.open(oTmpEditor.getPath(), { changeFocus:true }).then (oNewEditor) =>
+      #       # console.log "after editor open", oNewEditor
+      #       oNewEditor?.setCursorBufferPosition(oPoint)
+      #       @oEditors[sShortFileName] = oNewEditor
 
 
     # console.log oNewEditor
